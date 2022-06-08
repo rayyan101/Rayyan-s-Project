@@ -6,3 +6,7 @@ Template:twentytwenty
 Text Domain: twentytwenty
 
 /* -------------------------------------------------------------------------- */
+
+#datafetch{
+    display: flex;
+}

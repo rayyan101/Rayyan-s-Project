@@ -5,20 +5,22 @@
 ?>    
     <h1 style="text-align: center;"> All Movies  </h1>
         
-    <input type="text" name="s" placeholder="Search Movies..." id="search" autocomplete="off">   
 
-
-
+    
       
 <div class="container">
     
     <?php
 
+
+
+
+
 $curentpage = get_query_var('paged');
 $args = array
 (
     'post_type'      => 'movie',
-    'posts_per_page' => '3',
+    'posts_per_page' => '6',
     'publish_status' => 'published',
     'paged' => $curentpage
 );

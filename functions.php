@@ -2,13 +2,14 @@
 
 
 function my_theme_enqueue_styles() {
-
-    wp_enqueue_script( 'custom-js ', get_stylesheet_directory_uri() . "/js/custom.js" ,   array('jquery') );
+    wp_enqueue_script( 'custom-js', get_stylesheet_directory_uri() . "/js/custom.js" ,   array('jquery') );
+    wp_localize_script( 'custom-js', 'ajax_object', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));
     wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css');
-    wp_enqueue_style( 'child-style', get_stylesheet_uri());   
+    wp_enqueue_style( 'child-style', get_stylesheet_uri());  
     }
-
     add_action( 'wp_enqueue_scripts', 'my_theme_enqueue_styles' );
+
+
 
 
 
@@ -74,29 +75,23 @@ function wpl_adding_movies() {
 
 
     function wpl_register_metabox(){
-      
-        add_meta_box( "cpt-id", "Actores Details", "wpl_actor_call","movie","side","high");
+    add_meta_box( "cpt-id", "Actores Details", "wpl_actor_call","movie","side","high");
 }
-     add_action("add_meta_boxes","wpl_register_metabox");
+    add_action("add_meta_boxes","wpl_register_metabox");
 
 
 
- function wpl_actor_call($post){
-
-
-?>
+ function wpl_actor_call($post){ ?>
      <p>
      <label> Name </label>
 	 <?php  $name = get_post_meta($post->ID,"wpl_actore_name",true) ?>
 	 <input type="text" value="<?php echo $name ?>" name="TxtActoreName" placeholder="name"/>
      </p>
-
      <p>
      <label> Email </label>
 	 <?php  $email = get_post_meta($post->ID,"wpl_actore_email",true) ?>
 	 <input type="email" value="<?php echo $email ?>" name="TxtActoreEmail" placeholder="email"/>
      </p>
-
 <?php
 
  }
@@ -110,16 +105,11 @@ function wpl_adding_movies() {
  
 
     function wpl_save_values($post_id, $post){
-
-	
         $TxtActoreName = isset($_POST['TxtActoreName'])?$_POST['TxtActoreName']:"";
 	    $TxtActoreEmail = isset($_POST['TxtActoreEmail'])?$_POST['TxtActoreEmail']:"";
 
-
 	    update_post_meta( $post_id,"wpl_actore_name",$TxtActoreName);
 	    update_post_meta( $post_id,"wpl_actore_email",$TxtActoreEmail);
-   
-
  }
 
     add_action("save_post","wpl_save_values",10,2);
@@ -133,7 +123,10 @@ function wpl_adding_movies() {
 
 
 
- 
+/**
+ * 
+ * 
+ *  */ 
 function shortcode_movie_post_type()
 {
     $curentpage = get_query_var('paged');
@@ -144,15 +137,11 @@ function shortcode_movie_post_type()
                     'paged' => $curentpage
                  );
   
-    $query = new WP_Query($args);
-  
+    $query = new WP_Query($args); 
     $result = '';
-    if($query->have_posts()) :
-  
+    if($query->have_posts()) :  
         while($query->have_posts()) :
-  
-            $query->the_post();
-          
+            $query->the_post();  
             $result = $result . "<h2>" . get_the_title() . "</h2>";
             $result = $result . get_the_post_thumbnail();
             $result = $result . "<p>" . get_the_content() . "</p>";
@@ -188,14 +177,90 @@ function shortcode_movie_post_type()
      );
    
     $query = new WP_Query($args);
-
-
-
-     $pg = array( 
+    $pg = array( 
     'total' => $query->max_num_pages
     );
-
     echo paginate_links($pg);
 
 
 }
+
+
+
+	 
+
+// add the ajax fetch js
+
+
+// the ajax function
+add_action('wp_ajax_data_fetch' , 'data_fetch');
+
+function data_fetch() {
+    $the_query = new WP_Query( array( 'posts_per_page' => 3, 's' => esc_attr( $_POST['keyword'] ), 'post_type' => array('movie') ) );
+    if( $the_query->have_posts() ) :
+        
+        while( $the_query->have_posts() ): $the_query->the_post();     
+        ?>
+        <div class="row">
+            <div style="background-color: DBEFDB; border: 1px solid black; float:left; " class="col-4"> 
+            <h1 style="text-align: center;"> <a style="align-items: center;" href=" <?php the_permalink(); ?> "> <?php the_title(); ?></a></h2></h1>
+                    <a href=" <?php the_permalink(); ?> ">  <?php the_post_thumbnail();?> </a>
+                    <p style="text-align: center;" ><?php the_content(); ?></p>
+                    <h5 style="text-align: center;"> <?php  $name = get_post_meta($post->ID,"wpl_actore_name",true) ?>
+                    <?php echo $name ?>
+                    </h5>
+                    <h6  style="text-align: center;"> <?php  $email = get_post_meta($post->ID,"wpl_actore_email",true) ?>
+                    <?php echo $email ?>
+                    </h6>
+            </div>       
+            </div>
+            
+            <?php   
+        endwhile; 
+        wp_reset_postdata();  
+    endif;
+    die();
+}
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

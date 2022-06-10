@@ -1,19 +1,16 @@
 <?php
 
-
 function my_theme_enqueue_styles() {
-    wp_enqueue_script( 'custom-js', get_stylesheet_directory_uri() . "/js/custom.js" ,   array('jquery') );
-    wp_localize_script( 'custom-js', 'ajax_object', array( 'ajaxurl' => admin_url( 'admin-ajax.php' )));
+    wp_enqueue_script( 'custom_js', get_stylesheet_directory_uri() . "/js/custom.js" ,   array('jquery') );
+    wp_localize_script( 
+        'custom_js', 
+        'ajax_object', 
+        array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) )
+    );
     wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css');
     wp_enqueue_style( 'child-style', get_stylesheet_uri());  
     }
     add_action( 'wp_enqueue_scripts', 'my_theme_enqueue_styles' );
-
-
-
-
-
-
 
 // Registring Custom Posts Types and Details
 
@@ -65,21 +62,12 @@ function wpl_adding_movies() {
 }
     add_action( 'init', 'wpl_adding_movies' );
 
- 
-
-
-
  // adding custom columns (metabox) to our post
-
-
-
 
     function wpl_register_metabox(){
     add_meta_box( "cpt-id", "Actores Details", "wpl_actor_call","movie","side","high");
 }
     add_action("add_meta_boxes","wpl_register_metabox");
-
-
 
  function wpl_actor_call($post){ ?>
      <p>
@@ -94,39 +82,21 @@ function wpl_adding_movies() {
      </p>
 <?php
 
- }
-
-
+}
 
 // getting data from (custom field) metabox 
 
-
-
- 
-
     function wpl_save_values($post_id, $post){
-        $TxtActoreName = isset($_POST['TxtActoreName'])?$_POST['TxtActoreName']:"";
-	    $TxtActoreEmail = isset($_POST['TxtActoreEmail'])?$_POST['TxtActoreEmail']:"";
+    $TxtActoreName = isset($_POST['TxtActoreName'])?$_POST['TxtActoreName']:"";
+	$TxtActoreEmail = isset($_POST['TxtActoreEmail'])?$_POST['TxtActoreEmail']:"";
 
-	    update_post_meta( $post_id,"wpl_actore_name",$TxtActoreName);
-	    update_post_meta( $post_id,"wpl_actore_email",$TxtActoreEmail);
- }
-
+    update_post_meta( $post_id,"wpl_actore_name",$TxtActoreName);
+	update_post_meta( $post_id,"wpl_actore_email",$TxtActoreEmail);
+}
     add_action("save_post","wpl_save_values",10,2);
-
-
-
-
 
 // shortcode of data retrive
 
-
-
-
-/**
- * 
- * 
- *  */ 
 function shortcode_movie_post_type()
 {
     $curentpage = get_query_var('paged');
@@ -135,11 +105,12 @@ function shortcode_movie_post_type()
                     'posts_per_page' => '2',
                     'publish_status' => 'published',
                     'paged' => $curentpage
-                 );
-  
+            );
+
     $query = new WP_Query($args); 
+    ob_start();
     $result = '';
-    if($query->have_posts()) :  
+    if($query->have_posts()) :   
         while($query->have_posts()) :
             $query->the_post();  
             $result = $result . "<h2>" . get_the_title() . "</h2>";
@@ -147,81 +118,211 @@ function shortcode_movie_post_type()
             $result = $result . "<p>" . get_the_content() . "</p>";
 
         endwhile;
-        wp_reset_postdata();
-       
+
+        $output_string = ob_get_contents();
+        ob_end_clean();
+        wp_die($output_string); 
+
         echo paginate_links(array(
             'total' => $query->max_num_pages
         )); 
     endif;   
-    return $result;
-            
+    return $result;          
 }
-  
-    add_shortcode( 'movie-list', 'shortcode_movie_post_type' ); 
-  
+    add_shortcode( 'movie_list', 'shortcode_movie_post_type' ); 
+
 // shortcode code ends here
-
-
-
-
 
     function pag(){
 
-    
-    $curentpage = get_query_var('paged');
-    $args = array(
-    'post_type'      => 'movie',
-    'posts_per_page' => '3',
-    'publish_status' => 'published',
-    'paged' => $curentpage
-     );
-   
+        $curentpage = get_query_var('paged');
+        $args = array(
+        'post_type'      => 'movie',
+        'posts_per_page' => '3',
+        'publish_status' => 'published',
+        'paged' => $curentpage
+    );
+
     $query = new WP_Query($args);
     $pg = array( 
     'total' => $query->max_num_pages
     );
-    echo paginate_links($pg);
-
-
+    echo paginate_links($pg); 
 }
-
-
-
-	 
 
 // add the ajax fetch js
 
+    add_action('wp_ajax_data_fetch' , 'data_fetch');
+    add_action('wp_ajax_nopriv_data_fetch' , 'data_fetch');
 
 // the ajax function
-add_action('wp_ajax_data_fetch' , 'data_fetch');
-
 function data_fetch() {
-    $the_query = new WP_Query( array( 'posts_per_page' => 3, 's' => esc_attr( $_POST['keyword'] ), 'post_type' => array('movie') ) );
+
+    $the_query = new WP_Query( array( 
+        'posts_per_page' => 3, 
+        's' => esc_attr( $_POST['keyword'] ), 
+        'post_type' => array('movie') ) );
     if( $the_query->have_posts() ) :
+        ob_start();
+        while( $the_query->have_posts() ): $the_query->the_post();  ?>
         
-        while( $the_query->have_posts() ): $the_query->the_post();     
-        ?>
-        <div class="row">
-            <div style="background-color: DBEFDB; border: 1px solid black; float:left; " class="col-4"> 
-            <h1 style="text-align: center;"> <a style="align-items: center;" href=" <?php the_permalink(); ?> "> <?php the_title(); ?></a></h2></h1>
-                    <a href=" <?php the_permalink(); ?> ">  <?php the_post_thumbnail();?> </a>
-                    <p style="text-align: center;" ><?php the_content(); ?></p>
-                    <h5 style="text-align: center;"> <?php  $name = get_post_meta($post->ID,"wpl_actore_name",true) ?>
-                    <?php echo $name ?>
-                    </h5>
-                    <h6  style="text-align: center;"> <?php  $email = get_post_meta($post->ID,"wpl_actore_email",true) ?>
-                    <?php echo $email ?>
-                    </h6>
-            </div>       
-            </div>
-            
-            <?php   
+<div style="background-color: DBEFDB; border: 1px solid black; float:left; " class="col-4"> 
+    <h1 style="text-align: center;"> <a style="align-items: center;" href=" <?php the_permalink(); ?> "> <?php the_title(); ?></a></h2></h1>
+    <a href=" <?php the_permalink(); ?> ">  <?php the_post_thumbnail();?> </a>
+    <p style="text-align: center;" ><?php the_content(); ?></p>
+    <h5 style="text-align: center;"> <?php  $name = get_post_meta($post->ID,"wpl_actore_name",true) ?>
+    <?php echo $name ?>
+    </h5>
+    <h6  style="text-align: center;"> <?php  $email = get_post_meta($post->ID,"wpl_actore_email",true) ?>
+    <?php echo $email ?> </h6>  
+</div>  
+    <?php  
         endwhile; 
-        wp_reset_postdata();  
+
+        $output_string = ob_get_contents();
+        ob_end_clean();
+        wp_die($output_string); 
+        wp_reset_postdata(); 
+
     endif;
     die();
-}
+} 
+
+
+
+
+
+add_action('wp_ajax_data_abcd' , 'data_abcd');
+add_action('wp_ajax_nopriv_data_abcd' , 'data_abcd');
+
+function data_abcd() {
+
+    $the_query = new WP_Query( array( 
+        'posts_per_page' => 3, 
+        'orderby' => 'title',
+        'order' => 'ASC',
+        'post_type' => array('movie') ) );
+    if( $the_query->have_posts() ) :
+        ob_start();
+        while( $the_query->have_posts() ): $the_query->the_post();  ?>
+        
+<div style="background-color: DBEFDB; border: 1px solid black; float:left; " class="col-4"> 
+    <h1 style="text-align: center;"> <a style="align-items: center;" href=" <?php the_permalink(); ?> "> <?php the_title(); ?></a></h2></h1>
+    <a href=" <?php the_permalink(); ?> ">  <?php the_post_thumbnail();?> </a>
+    <p style="text-align: center;" ><?php the_content(); ?></p>
+    <h5 style="text-align: center;"> <?php  $name = get_post_meta($post->ID,"wpl_actore_name",true) ?>
+    <?php echo $name ?>
+    </h5>
+    <h6  style="text-align: center;"> <?php  $email = get_post_meta($post->ID,"wpl_actore_email",true) ?>
+    <?php echo $email ?> </h6>  
+</div>  
+    <?php  
+        endwhile; 
+
+        $output_string = ob_get_contents();
+        ob_end_clean();
+        wp_die($output_string); 
+        wp_reset_postdata(); 
+
+    endif;
+    die();
+} 
+
+
+
+
+
+add_action('wp_ajax_data_abcde' , 'data_abcde');
+add_action('wp_ajax_nopriv_data_abcde' , 'data_abcde');
+
+function data_abcde() {
+
+    $the_query = new WP_Query( array( 
+        'posts_per_page' => 3, 
+        'orderby' => 'title',
+        'order' => 'DESC',
+        'post_type' => array('movie') ) );
+    if( $the_query->have_posts() ) :
+        ob_start();
+        while( $the_query->have_posts() ): $the_query->the_post();  ?>
+        
+<div style="background-color: DBEFDB; border: 1px solid black; float:left; " class="col-4"> 
+    <h1 style="text-align: center;"> <a style="align-items: center;" href=" <?php the_permalink(); ?> "> <?php the_title(); ?></a></h2></h1>
+    <a href=" <?php the_permalink(); ?> ">  <?php the_post_thumbnail();?> </a>
+    <p style="text-align: center;" ><?php the_content(); ?></p>
+    <h5 style="text-align: center;"> <?php  $name = get_post_meta($post->ID,"wpl_actore_name",true) ?>
+    <?php echo $name ?>
+    </h5>
+    <h6  style="text-align: center;"> <?php  $email = get_post_meta($post->ID,"wpl_actore_email",true) ?>
+    <?php echo $email ?> </h6>  
+</div>  
+    <?php  
+        endwhile; 
+
+        $output_string = ob_get_contents();
+        ob_end_clean();
+        wp_die($output_string); 
+        wp_reset_postdata(); 
+
+    endif;
+    die();
+} 
+
+
+
+
+add_action('wp_ajax_data_drop' , 'data_drop');
+add_action('wp_ajax_nopriv_data_drop' , 'data_drop');
+
+function data_drop() {
+
+    $the_query = new WP_Query( array( 
+        'posts_per_page' => 3, 
+        'orderby' => 'title',
+        'order' => 'DESC',
+        'post_type' => array('movie') ) );
+    if( $the_query->have_posts() ) :
+        ob_start();
+        while( $the_query->have_posts() ): $the_query->the_post();  ?>
+        
+<div style="background-color: DBEFDB; border: 1px solid black; float:left; " class="col-4"> 
+    <h1 style="text-align: center;"> <a style="align-items: center;" href=" <?php the_permalink(); ?> "> <?php the_title(); ?></a></h2></h1>
+    <a href=" <?php the_permalink(); ?> ">  <?php the_post_thumbnail();?> </a>
+    <p style="text-align: center;" ><?php the_content(); ?></p>
+    <h5 style="text-align: center;"> <?php  $name = get_post_meta($post->ID,"wpl_actore_name",true) ?>
+    <?php echo $name ?>
+    </h5>
+    <h6  style="text-align: center;"> <?php  $email = get_post_meta($post->ID,"wpl_actore_email",true) ?>
+    <?php echo $email ?> </h6>  
+</div>  
+    <?php  
+        endwhile; 
+
+        $output_string = ob_get_contents();
+        ob_end_clean();
+        wp_die($output_string); 
+        wp_reset_postdata(); 
+
+    endif;
+    die();
+
+
+
+} 
+
+
+
+
+
+
+
+
+
+
+
 ?>
+
+
 
 
 

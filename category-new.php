@@ -3,33 +3,27 @@
 
 
 <?php
-       
-       get_header( );
+get_header( ); ?>
 
-   ?>    <h1 style="text-align: center;"> New Category Movies  </h1>
-<?php
-       
-?>
-
-      
+    <h1 style="text-align: center;"> New Category Movies  </h1>
 <div class="container">
         <?php
 
-$curentpage = get_query_var('paged');
-$args = array
-(
-    'post_type'      => 'movie',
-    'posts_per_page' => '3',
-    'category_name' => 'new',
-    'publish_status' => 'published',
-    'paged' => $curentpage
-);
+        $curentpage = get_query_var('paged');
+        $args = array
+        (
+            'post_type'      => 'movie',
+            'posts_per_page' => '3',
+            'category_name' => 'new',
+            'publish_status' => 'published',
+            'paged' => $curentpage
+        );
 
 
-$query = new WP_Query($args);
+        $query = new WP_Query($args);
 
-if($query->have_posts()):
-    while($query->have_posts()) :
+        if($query->have_posts()):
+          while($query->have_posts()) :
 
         $query ->the_post();?>
     

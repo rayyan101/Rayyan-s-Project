@@ -276,10 +276,12 @@ add_action('wp_ajax_nopriv_data_drop' , 'data_drop');
 
 function data_drop() {
 
+
+    
     $the_query = new WP_Query( array( 
         'posts_per_page' => 3, 
         'orderby' => 'title',
-        'order' => 'DESC',
+        'order' => $_POST["keyword"],
         'post_type' => array('movie') ) );
     if( $the_query->have_posts() ) :
         ob_start();

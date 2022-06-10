@@ -19,8 +19,8 @@ get_header();   ?>
 <!-- <div class="filters">
 
 <select id="language">
-<option>Sorting By Ascending</option>
-<option>Sorting By Decending</option>
+<option value="asc">Sorting By Ascending</option>
+<option value="desc">Sorting By Decending</option>
 <option>Sorting By Oldest</option>
 </select>
 

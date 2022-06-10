@@ -50,7 +50,7 @@ jQuery(document).ready(function($){
 
 
     
-    $("select").change(function(){
+    $("#language").change(function(){
         var keyword = $(this).find("option:selected").text();
         var keyword = $(this).val();
         // alert(keyword);

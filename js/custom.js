@@ -15,50 +15,18 @@ jQuery(document).ready(function($){
         });
     });
 
-    
- $("#btnsort").click(function(){
-        // alert("Clickeddd");
-        var keyword = "";
-        jQuery.ajax({
-            url:   ajax_object.ajaxurl,
-            type: 'POST',
-            data: { 
-                action: 'data_abcd',  
-                keyword: keyword 
-            },
-            success: function(data) {
-                jQuery('#datafetch').html( data );
-            }
-        });;
-    });
-
-    $("#btnsortt").click(function(){
-        // alert("Clickeddd");
-        var keyword = "";
-        jQuery.ajax({
-            url:   ajax_object.ajaxurl,
-            type: 'POST',
-            data: { 
-                action: 'data_abcde',  
-                keyword: keyword 
-            },
-            success: function(data) {
-                jQuery('#datafetch').html( data );
-            }
-        });
-    });
 
 
     
     $("#language").change(function(){
-        var keyword = $(this).find("option:selected").text();
-        var keyword = $(this).val();
+        var keyword = $(this).find("option:selected").val();
+
         // alert(keyword);
         jQuery.ajax({
             url:   ajax_object.ajaxurl,
             type: 'POST',
             data: { 
-                action: 'data_drop',  
+                action: 'data_drop', 
                 keyword: keyword 
             },
             success: function(data) {

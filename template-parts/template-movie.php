@@ -11,17 +11,19 @@ get_header();   ?>
 
 <div class="search_bar">
 <input type="text" name="keyword" placeholder="Search Code..." id="keyword" class="input_search">  
-
+<!-- 
 <button id="btnsort">Sorting By Ascending</button>
 
-<button id="btnsortt">Sorting By Decending</button> 
+<button id="btnsortt">Sorting By Decending</button>  -->
 </div
 <!-- <div class="filters">
 
 <select id="language">
+<option value="">Filters</option>
 <option value="asc">Sorting By Ascending</option>
 <option value="desc">Sorting By Decending</option>
-<option>Sorting By Oldest</option>
+<option value="old">Sorting By Oldest</option>
+<option value="new" >Sorting By Newest</option>
 </select>
 
 
@@ -34,8 +36,10 @@ get_header();   ?>
             (
                 'post_type'      => 'movie',
 
+                'post_status' => 'publish',
+                'orderby' => 'publish_date',
+                'order' => 'DESC',
                 'posts_per_page' => '3',
-                'publish_status' => 'published',
                 'paged' => $curentpage
             );
 

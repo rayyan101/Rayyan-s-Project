@@ -193,7 +193,24 @@ function data_abcd() {
 
 
 
+$order = "ASC";
+$orderby = "title";
 
+
+
+if($_POST["keyword"] == "asc") {
+ $order = 'ASC';
+} if($_POST["keyword"] == "desc") {
+   $order = 'DESC';
+}  if($_POST["keyword"] == "old") {
+    $orderby = 'date';
+    $order = 'ASC';
+}
+if($_POST["keyword"] == "new") {
+    $orderby = 'date';
+    $order = 'DESC';
+
+} 
 
 
 
